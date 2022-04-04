@@ -458,6 +458,17 @@ class APatrolPoint : public AActor
 		void Touch(AActor *toucher);
 };
 
+class ACollateral : public AActor
+{
+	DECLARE_NATIVE_CLASS(Collateral, Actor)
+
+	public:
+		double		HitRadius;
+		int			HitChance;
+
+		const ClassDef	*GetCollateralType() const;
+};
+
 namespace ActorSpawnID
 {
 	typedef std::map<unsigned int, AActor *> ActorByKey;

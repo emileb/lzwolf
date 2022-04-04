@@ -587,6 +587,62 @@ void SelectPathDir (AActor *ob)
 	}
 }
 
+/*
+===============
+=
+= SearchForTarget
+=
+===============
+*/
+FRandom pr_searchcollateral("SearchForCollateral");
+AActor* SearchForCollateral (AActor *self, AActor *target)
+{
+	TVector2<double> vecv(0.0, 0.0);
+	double distsqv = 0.0;
+	using TCollateralMap = std::map<double, ACollateral*>;
+	TCollateralMap foundbydist;
+
+	int32_t vdeltax = target->x - self->x;
+	int32_t vdeltay = target->y - self->y;
+	vecv = TVector2<double>(vdeltax, vdeltay);
+	distsqv = vecv.LengthSquared();
+	vecv.MakeUnit();
+	auto rotvecv = vecv.Rotated90CW();
+
+	for(AActor::Iterator iter = AActor::GetIterator();iter.Next();)
+	{
+		int32_t deltax = iter->x - self->x;
+		int32_t deltay = iter->y - self->y;
+
+		TVector2<double> vecu(deltax,deltay);
+		double distsqu = 0.0;
+
+		if (iter != self &&
+			(iter->flags & FL_SHOOTABLE) &&
+			iter->IsKindOf(NATIVE_CLASS(Collateral)) &&
+			(distsqu = vecu.LengthSquared() < distsqv) &&
+			(vecu|vecv) > 0.0)
+		{
+			AActor *actor = iter;
+			ACollateral *collateral = static_cast<ACollateral *> (actor);
+
+			if (fabs(vecu|rotvecv) < collateral->HitRadius)
+				foundbydist[distsqu] = collateral;
+		}
+	}
+
+	for(auto kv: foundbydist)
+	{
+		ACollateral *collateral = kv.second;
+		if(pr_searchcollateral() * 100 / 256 < collateral->HitChance)
+		{
+			return collateral;
+		}
+	}
+
+	return NULL;
+}
+
 FRandom pr_chase("Chase");
 ACTION_FUNCTION(A_Chase)
 {
@@ -946,6 +1002,11 @@ ACTION_FUNCTION(A_WolfAttack)
 
 		NetDPrintf("Actor %s called A_WolfAttack without target.\n", self->GetClass()->GetName().GetChars());
 		return true;
+	}
+
+	if (auto collateral = SearchForCollateral (self, target))
+	{
+		target = collateral;
 	}
 
 	runspeed *= 37.5;

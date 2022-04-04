@@ -1182,3 +1182,15 @@ const ClassDef *ALit::GetLitType() const
 		cls = cls->GetParent();
 	return cls;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+IMPLEMENT_CLASS(Collateral)
+
+const ClassDef *ACollateral::GetCollateralType() const
+{
+	const ClassDef *cls = GetClass();
+	while(cls->GetParent() != NATIVE_CLASS(Collateral))
+		cls = cls->GetParent();
+	return cls;
+}

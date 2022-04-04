@@ -40,3 +40,4 @@
 #include "actors/blake/blakeplayer.txt"
 #include "actors/blake/blakeweapons.txt"
 #include "actors/doom/doomarmor.txt"
+#include "actors/wolf/wolftest.txt"

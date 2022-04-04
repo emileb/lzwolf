@@ -473,10 +473,22 @@ HANDLE_PROPERTY(height)
 	// For forwards compatibility solid actors should have a height of 64
 }
 
+HANDLE_PROPERTY(hitchance)
+{
+	INT_PARAM(value, 0);
+	((ACollateral*)defaults)->HitChance = value;
+}
+
 HANDLE_PROPERTY(hitobituary)
 {
 	STRING_PARAM(str, 0);
 	cls->Meta.SetMetaString (AMETA_HitObituary, str);
+}
+
+HANDLE_PROPERTY(hitradius)
+{
+	FLOAT_PARAM(value, 0);
+	((ACollateral*)defaults)->HitRadius = value*FRACUNIT/64;
 }
 
 HANDLE_PROPERTY(icon)
@@ -1046,7 +1058,9 @@ extern const PropDef properties[] =
 	DEFINE_PROP(halolight, Actor, IFI_S),
 	DEFINE_PROP(health, Actor, I_IIIIIIII),
 	DEFINE_PROP(height, Actor, I),
+	DEFINE_PROP(hitchance, Collateral, I),
 	DEFINE_PROP(hitobituary, Actor, T),
+	DEFINE_PROP(hitradius, Collateral, F),
 	DEFINE_PROP(icon, Inventory, S),
 	DEFINE_PROP(ignorearmor, Damage, I),
 	DEFINE_PROP(infomessage, Actor, T),

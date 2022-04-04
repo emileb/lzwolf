@@ -1,0 +1,60 @@
+actor CollateralGuard : Collateral
+{
+	missilefrequency 0.08
+	minmissilechance 256
+	height 64
+	radius 42
+	painchance 256
+	meleerange 42
+	MONSTER
+	+ALWAYSFAST
+	+RANDOMIZE
+	+OLDRANDOMCHASE
+	points 100
+	health 25
+	speed 1, 3
+	sighttime 1, 4
+	dropitem "Clip"
+	attacksound "guard/attack"
+	deathsound "guard/death"
+	secretdeathsound "guard/fart"
+	seesound "guard/sight"
+	obituary "$OB_GUARD"
+	states
+	{
+		Spawn:
+			GARD A -1 NOP A_Look
+			stop
+		Path:
+			GARD B 10 NOP A_Chase
+			GARD B 2.5
+			GARD C 7.5 NOP A_Chase
+			GARD D 10 NOP A_Chase
+			GARD D 2.5
+			GARD E 7.5 NOP A_Chase
+			loop
+		See:
+			GARD B 5 NOP A_Chase
+			GARD B 1.5
+			GARD C 4 NOP A_Chase
+			GARD D 5 NOP A_Chase
+			GARD D 1.5
+			GARD E 4 NOP A_Chase
+			loop
+		Missile:
+			GARD FG 10 A_FaceTarget
+			GARD H 10 bright A_WolfAttack
+			goto See
+		Pain:
+			GARD I 5 A_JumpIf(health & 1, 1)
+			goto See
+			GARD J 5
+			goto See
+		Death:
+			GARD K 7.5 A_Fall
+			GARD L 7.5 A_Scream
+			GARD M 7.5
+			GARD N -1
+			stop
+	}
+}
