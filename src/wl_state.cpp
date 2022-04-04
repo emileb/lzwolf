@@ -1217,8 +1217,29 @@ static bool CheckSightTo (AActor *ob, AActor *target, double minseedist, double 
 	return CheckLine (ob, target);
 }
 
+/*
+================
+=
+= GetInventoryFaction
+=
+= Returns faction from given actor. The result can be overridden by actor inventory.
+=
+================
+*/
+const ClassDef *GetInventoryFaction (AActor *ob)
+{
+	for(AInventory *item = ob->inventory;item;item = item->inventory)
+	{
+		if(item->faction)
+			return item->faction;
+	}
+	return ob->faction;
+}
+
 bool CheckIsEnemyByFaction (AActor *ob, AActor *check)
 {
+	const auto faction = GetInventoryFaction (check);
+
 	typedef AActor::EnemyFactionList Li;
 	Li *li = ob->GetEnemyFactionList();
 	if (li)
@@ -1227,7 +1248,7 @@ bool CheckIsEnemyByFaction (AActor *ob, AActor *check)
 		do
 		{
 			Li::Iterator enemyFaction = item;
-			if (check->faction == enemyFaction->faction)
+			if (faction == enemyFaction->faction)
 			{
 				return true;
 			}
