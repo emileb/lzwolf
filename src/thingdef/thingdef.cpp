@@ -480,8 +480,8 @@ bool ClassDef::bShutdown = false;
 // Minimize warning spam for deprecated feature in 1.4
 static bool g_ThingEdNumWarning;
 
-ClassDef::ClassDef() : DamageFactors(nullptr), tentative(false),
-	filterposRunningId(0)
+ClassDef::ClassDef() : DamageFactors(nullptr), FullBrightInhibit(false),
+	CMapStart(nullptr), tentative(false), filterposRunningId(0)
 {
 	defaultInstance = NULL;
 	FlatPointers = Pointers = NULL;

@@ -539,6 +539,29 @@ CCMD (testfade)
 	}
 }
 
+CCMD (savefade)
+{
+	FString colorstring;
+	DWORD color;
+
+	if (argv.argc() < 2)
+	{
+		Printf ("savefade <color>\n");
+	}
+	else
+	{
+		color = V_GetColorFromString (NULL, argv[1]);
+		NormalLight.ChangeFade (color);
+
+		FILE *fp = fopen("TESTCMAP.cmp", "wb");
+		if(fp != NULL)
+		{
+			fwrite(NormalLight.Maps, 256, NUMCOLORMAPS, fp);
+			fclose(fp);
+		}
+	}
+}
+
 /****** Colorspace Conversion Functions ******/
 
 // Code from http://www.cs.rit.edu/~yxv4997/t_convert.html

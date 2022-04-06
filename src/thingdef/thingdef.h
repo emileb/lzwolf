@@ -329,6 +329,9 @@ class ClassDef
 		unsigned int			ClassIndex;
 		MetaTable				Meta;
 		DmgFactors              *DamageFactors;
+		FName                   FadeCMapName;
+		bool                    FullBrightInhibit;
+		const BYTE              *CMapStart;
 
 		static bool	SetFlag(const ClassDef *newClass, AActor *instance, const FString &prefix, const FString &flagName, bool set);
 

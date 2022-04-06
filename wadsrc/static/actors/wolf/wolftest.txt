@@ -58,3 +58,20 @@ actor CollateralGuard : Collateral
 			stop
 	}
 }
+
+actor TestFadeLit : Lit
+{
+	fadecmap "TESTCMAP"
+}
+
+actor TestFadeCeilingLight
+{
+	zonelight 0, 3, "TestFadeLit"
+	states
+	{
+		Spawn:
+			GLMP A 1 A_EnableZoneLight(0, true)
+			GLMP A -1 bright
+			stop
+	}
+}

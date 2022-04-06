@@ -550,6 +550,7 @@ void GameMap::SpawnThings() const
 				cls = unknownClass;
 				printf("Unknown thing %s @ (%d, %d)\n", thing.type.GetChars(), thing.x>>FRACBITS, thing.y>>FRACBITS);
 			}
+			//fprintf(stderr, "%s\n", cls->GetName().GetChars());
 
 			AActor *actor = AActor::Spawn(cls, thing.x, thing.y, thing.z, SPAWN_AllowReplacement|(thing.patrol ? SPAWN_Patrol : 0));
 			// This forumla helps us to avoid errors in roundoffs.

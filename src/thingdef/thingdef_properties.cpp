@@ -42,6 +42,7 @@
 #include "thingdef/thingdef_type.h"
 #include "thingdef/thingdef_expression.h"
 #include "v_video.h"
+#include "r_data/colormaps.h"
 
 #define IS_EXPR(no) params[no].isExpression
 #define EXPR_PARAM(var, no) ExpressionNode *var = params[no].expr;
@@ -337,6 +338,14 @@ HANDLE_PROPERTY(faction)
 		defaults->faction = ClassDef::FindClassTentative(type, NATIVE_CLASS(Faction));
 }
 
+HANDLE_PROPERTY(fadecmap)
+{
+	STRING_PARAM(str, 0);
+	cls->FadeCMapName = FName(str);
+	cls->CMapStart = 
+		&realcolormaps[R_ColormapNumForName(str)*256*NUMCOLORMAPS];
+}
+
 HANDLE_PROPERTY(filterposthrust)
 {
 	INT_PARAM(axis, 0);
@@ -408,6 +417,12 @@ HANDLE_PROPERTY(forwardmove)
 		FIXED_PARAM(forwardmove2, 1);
 		player->forwardmove[1] = forwardmove2;
 	}
+}
+
+HANDLE_PROPERTY(fullbrightinhibit)
+{
+	INT_PARAM(inhibit, 0);
+	cls->FullBrightInhibit = !!inhibit;
 }
 
 HANDLE_PROPERTY(gibhealth)
@@ -1049,11 +1064,13 @@ extern const PropDef properties[] =
 	DEFINE_PROP(dropitem, Actor, S_II),
 	DEFINE_PROP(enemyfaction, Actor, S),
 	DEFINE_PROP(faction, Actor, S),
+	DEFINE_PROP(fadecmap, Actor, S),
 	DEFINE_PROP(filterposthrust, Actor, II),
 	DEFINE_PROP(filterposwave, Actor, IFFI),
 	DEFINE_PROP(filterposwrap, Actor, FFI),
 	DEFINE_PROP(flipsprite, Actor, I),
 	DEFINE_PROP_PREFIX(forwardmove, PlayerPawn, Player, F_F),
+	DEFINE_PROP(fullbrightinhibit, Actor, I),
 	DEFINE_PROP(gibhealth, Actor, I),
 	DEFINE_PROP(halolight, Actor, IFI_S),
 	DEFINE_PROP(health, Actor, I_IIIIIIII),

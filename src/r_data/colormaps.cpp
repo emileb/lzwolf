@@ -77,8 +77,6 @@ TArray<FakeCmap> fakecmaps;
 BYTE *realcolormaps;
 size_t numfakecmaps;
 
-
-
 TArray<FSpecialColormap> SpecialColormaps;
 BYTE DesaturateColormap[31][256];
 
@@ -581,6 +579,19 @@ void R_InitColormaps ()
 					b += GPalette.BaseColors[map[k]].b;
 				}
 				fakecmaps[j].blend = PalEntry (255, r/256, g/256, b/256);
+			}
+			// Raw color map support
+			else if (Wads.LumpLength (fakecmaps[j].lump) == NUMCOLORMAPS*256)
+			{
+				int k;
+				FWadLump lump = Wads.OpenLumpNum (fakecmaps[j].lump);
+				BYTE *const map = realcolormaps + NUMCOLORMAPS*256*j;
+
+				for (k = 0; k < NUMCOLORMAPS; ++k)
+				{
+					lump.Read (mapin, 256);
+					memcpy(&map[k*256], mapin, 256);
+				}
 			}
 		}
 	}

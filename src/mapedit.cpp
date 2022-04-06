@@ -453,6 +453,32 @@ public:
 	}
 };
 
+class FCVar_me_zone : public FDynamicCVarAccess<int>
+{
+public:
+	int GetValue() const
+	{
+		MapSpot spot = mapeditor->GetCurSpot();
+		return (spot != NULL && spot->zone != NULL ?
+			spot->zone->index : -1);
+	}
+
+	bool SetValue(int value) const
+	{
+		const MapZone *zone = &map->GetZone(value);
+
+		MapSpot spot = mapeditor->GetCurSpot();
+		if (spot == NULL)
+		{
+			Printf(TEXTCOLOR_RED " Invalid spot!\n");
+			return false;
+		}
+
+		spot->zone = zone;
+		return true;
+	}
+};
+
 class FCVarThingCommon
 {
 public:
@@ -693,6 +719,7 @@ public:
 
 DYNAMIC_CVAR (Int, me_tile, 0, CVAR_NOFLAGS)
 DYNAMIC_CVAR (Int, me_sector, 0, CVAR_NOFLAGS)
+DYNAMIC_CVAR (Int, me_zone, 0, CVAR_NOFLAGS)
 DYNAMIC_CVAR (String, me_thingtype, "", CVAR_NOFLAGS)
 DYNAMIC_CVAR (Int, me_thingangle, false, CVAR_NOFLAGS)
 DYNAMIC_CVAR (Bool, me_thingambush, false, CVAR_NOFLAGS)
