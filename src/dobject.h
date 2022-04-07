@@ -204,6 +204,12 @@ public:
 		: p(q.p)
 	{
 	}
+	TObjPtr &operator=(const TObjPtr<T> &q) throw()
+	{
+		p = q.p;
+		return *this;
+		// The caller must now perform a write barrier?
+	}
 	T *operator=(T *q) throw()
 	{
 		return p = q;

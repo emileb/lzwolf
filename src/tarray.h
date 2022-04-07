@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <new>
+#include <algorithm>
 
 #if !defined(_WIN32)
 #include <inttypes.h>		// for intptr_t
@@ -187,7 +188,7 @@ public:
 			Array[index].~T();
 			if (index < --Count)
 			{
-				memmove (&Array[index], &Array[index+1], sizeof(T)*(Count - index));
+				std::copy (&Array[index+1], &Array[index+1+(Count-index)], &Array[index]);
 			}
 		}
 	}
@@ -204,7 +205,7 @@ public:
 			Count -= deletecount;
 			if (index < Count)
 			{
-				memmove (&Array[index], &Array[index+deletecount], sizeof(T)*(Count - index));
+				std::copy (&Array[index+deletecount], &Array[index+deletecount+(Count-index)], &Array[index]);
 			}
 		}
 	}
@@ -226,7 +227,7 @@ public:
 			Resize (Count + 1);
 
 			// Now move items from the index and onward out of the way
-			memmove (&Array[index+1], &Array[index], sizeof(T)*(Count - index - 1));
+			std::copy (&Array[index], &Array[index+(Count-index-1)], &Array[index+1]);
 
 			// And put the new element in
 			(void)TMoveInsert<T>(&Array[index], item);
