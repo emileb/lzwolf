@@ -1183,6 +1183,7 @@ FUNC(Teleport_Relative)
 		TELEPORT_AbsoluteAngle = 8, // Set absolute angle instead of relative
 		TELEPORT_ActivationAngle = 0x10, // Face the activation point (typically used with AbsoluteAngle)
 		TELEPORT_InvertYFrac = 0x20, // Invert yfrac
+		TELEPORT_AbsolutePosition = 0x40, // Set absolute position instead of relative
 	};
 
 	if(!spot)
@@ -1210,8 +1211,16 @@ FUNC(Teleport_Relative)
 	fixed y = activator->y + ((dest->GetY() - spot->GetY())<<FRACBITS);
 	if((args[2] & TELEPORT_Center))
 	{
-		x = (x&0xFFFF0000)|0x8000;
-		y = (y&0xFFFF0000)|0x8000;
+		if((args[2] & TELEPORT_AbsolutePosition))
+		{
+			x = (dest->GetX()<<FRACBITS)|0x8000;
+			y = (dest->GetY()<<FRACBITS)|0x8000;
+		}
+		else
+		{
+			x = (x&0xFFFF0000)|0x8000;
+			y = (y&0xFFFF0000)|0x8000;
+		}
 	}
 	if((args[2] & TELEPORT_InvertYFrac))
 	{
