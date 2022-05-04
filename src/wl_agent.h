@@ -38,6 +38,7 @@ public:
 	virtual void InfoMessage(FString key,
 			const std::vector<FTextureID> &texids = std::vector<FTextureID>()) {}
 	virtual void ClearInfoMessages() {}
+	virtual bool ShowWithoutKey() const { return false; }
 };
 extern DBaseStatusBar *StatusBar;
 void	CreateStatusBar();

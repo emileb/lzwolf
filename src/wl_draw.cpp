@@ -1422,7 +1422,7 @@ void R_RenderView()
 
 	DrawPlayerWeapon ();    // draw player's hands
 
-	if((control[ConsolePlayer].buttonstate[bt_showstatusbar] || control[ConsolePlayer].buttonheld[bt_showstatusbar]) && viewsize == 21)
+	if((StatusBar->ShowWithoutKey() || control[ConsolePlayer].buttonstate[bt_showstatusbar] || control[ConsolePlayer].buttonheld[bt_showstatusbar]) && viewsize == 21)
 	{
 		ingame = false;
 		StatusBar->DrawStatusBar();

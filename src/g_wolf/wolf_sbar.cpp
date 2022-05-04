@@ -55,6 +55,8 @@ static struct StatusBarConfig_t
 	LatchConfig Mugshot, Keys, Weapon, Armor;
 
 	std::vector<InventoryLatchConfig> Inventory;
+
+	bool ShowWithoutKey;
 } StatusBarConfig = {
 	{1, 2, 16, 16},      // Floor
 	{1, 6, 48, 16},      // Score
@@ -115,6 +117,7 @@ public:
 	void RefreshBackground(bool noborder);
 	void UpdateFace(int damage=0);
 	void WeaponGrin();
+	bool ShowWithoutKey() const;
 
 private:
 	static void LatchNumber (int x, int y, unsigned width, int32_t number, bool zerofill, bool cap=false);
@@ -295,7 +298,21 @@ void WolfStatusBar::UpdateFace (int damage)
 	}
 }
 
+/*
+===============
+=
+= ShowWithoutKey
+=
+= Indicates status on whether key is required to show status bar while viewsize
+= is at its maximum.
+=
+===============
+*/
 
+bool WolfStatusBar::ShowWithoutKey() const
+{
+	return StatusBarConfig.ShowWithoutKey;
+}
 
 /*
 ===============
@@ -768,6 +785,12 @@ void WolfStatusBar::SetupStatusbar()
 					refIt->second = sc->str;
 					continue;
 				}
+			}
+			else if(key.Compare("showwithoutkey") == 0)
+			{
+				sc.MustGetToken(TK_BoolConst);
+				StatusBarConfig.ShowWithoutKey = sc->boolean;
+				continue;
 			}
 			else
 				sc.ScriptMessage(Scanner::ERROR, "Unknown key '%s'.\n", key.GetChars());
