@@ -24,6 +24,8 @@ namespace Shading
 {
 	const BYTE *GetCMapStart (const ClassDef *littype);
 
+	bool GetFullBrightInhibit (const ClassDef *littype);
+
 	class Span
 	{
 	public:
@@ -559,20 +561,20 @@ namespace Shading
 
 	const BYTE *GetCMapStart (const ClassDef *littype)
 	{
-		// fast path
-		if(!littype)
-			return &realcolormaps[0];
-		if(littype->CMapStart)
+		if(littype && littype->CMapStart)
 			return littype->CMapStart;
+		if(levelInfo->CMapStart) // littype has priority over mapinfo
+			return levelInfo->CMapStart;
+		return &realcolormaps[0]; // fallback to identity map
+	}
 
-		// slow path
-		const FName cmapname = (littype &&
-			littype->FadeCMapName != FName()) ?
-			littype->FadeCMapName :
-			FName();
-		const BYTE *cmapstart = 
-			&realcolormaps[R_ColormapNumForName(cmapname.GetChars())*256*NUMCOLORMAPS];
-		return cmapstart;
+	bool GetFullBrightInhibit (const ClassDef *littype)
+	{
+		if(littype && littype->FullBrightInhibit)
+			return true;
+		if(levelInfo->FullBrightInhibit) // littype has priority over mapinfo
+			return true;
+		return false; // fallback to original fullbright treatment
 	}
 }
 

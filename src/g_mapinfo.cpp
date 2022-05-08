@@ -48,6 +48,7 @@
 #include "thingdef/thingdef.h"
 #include "wl_game.h"
 #include "c_dispatch.h"
+#include "r_data/colormaps.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // MapInfoBlockParser
@@ -274,7 +275,7 @@ static LevelInfo defaultMap;
 static TArray<LevelInfo> levelInfos;
 
 LevelInfo::LevelInfo() : ResetHealth(false), ResetInventory(false),
-	UseMapInfoName(false)
+	FullBrightInhibit(false), CMapStart(nullptr), UseMapInfoName(false)
 {
 	MapName[0] = 0;
 	TitlePatch.SetInvalid();
@@ -515,6 +516,16 @@ protected:
 		}
 		else if(key.CompareNoCase("DeathCam") == 0)
 			ParseBoolAssignment(mapInfo.DeathCam);
+		else if(key.CompareNoCase("FadeCMap") == 0)
+		{
+			FString cmapName;
+			ParseStringAssignment(cmapName);
+			const char* str = cmapName.GetChars();
+			mapInfo.FadeCMapName = FName(str);
+			const DWORD colormapnum = R_ColormapNumForName(str);
+			mapInfo.CMapStart = (colormapnum != 0 ?
+				&realcolormaps[colormapnum*256*NUMCOLORMAPS] : nullptr);
+		}
 		else if(key.CompareNoCase("FloorNumber") == 0)
 		{
 			sc.MustGetToken('=');
@@ -528,6 +539,8 @@ protected:
 		}
 		else if(key.CompareNoCase("ForceTally") == 0)
 			ParseBoolAssignment(mapInfo.ForceTally);
+		else if(key.CompareNoCase("FullBrightInhibit") == 0)
+			ParseBoolAssignment(mapInfo.FullBrightInhibit);
 		else if(key.CompareNoCase("HighScoresGraphic") == 0)
 		{
 			FString texName;

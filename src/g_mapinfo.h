@@ -215,6 +215,10 @@ public:
 
 	TArray<const ClassDef *>	EnsureInventory;
 
+	FName           FadeCMapName;
+	bool            FullBrightInhibit;
+	const BYTE      *CMapStart;
+
 	struct SpecialAction
 	{
 	public:

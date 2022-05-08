@@ -342,8 +342,9 @@ HANDLE_PROPERTY(fadecmap)
 {
 	STRING_PARAM(str, 0);
 	cls->FadeCMapName = FName(str);
-	cls->CMapStart = 
-		&realcolormaps[R_ColormapNumForName(str)*256*NUMCOLORMAPS];
+	const DWORD colormapnum = R_ColormapNumForName(str);
+	cls->CMapStart = (colormapnum != 0 ? 
+		&realcolormaps[colormapnum*256*NUMCOLORMAPS] : nullptr);
 }
 
 HANDLE_PROPERTY(filterposthrust)

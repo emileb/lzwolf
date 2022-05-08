@@ -60,6 +60,8 @@ namespace Shading
 	int LightForIntercept (fixed xintercept, fixed yintercept, const ClassDef* &littype);
 
 	const BYTE *GetCMapStart (const ClassDef *littype);
+
+	bool GetFullBrightInhibit (const ClassDef *littype);
 }
 
 void DrawFloorAndCeiling(byte *vbuf, unsigned vbufPitch, TWallHeight min_wallheight);
@@ -355,7 +357,7 @@ void RunScalePost()
 	const int tz = FixedMul(r_depthvisibility<<8, wallheight[postx][0]);
 	const BYTE *curshades;
 	const BYTE *cmapstart = Shading::GetCMapStart (littype);
-	if(postbright && !(littype && littype->FullBrightInhibit))
+	if(postbright && !Shading::GetFullBrightInhibit(littype))
 		curshades = cmapstart;
 	else
 		curshades = &cmapstart[GETPALOOKUP(MAX(tz, MINZ), shade)<<8];

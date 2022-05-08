@@ -387,6 +387,8 @@ namespace Shading
 
 	const BYTE *GetCMapStart (const ClassDef *littype);
 
+	bool GetFullBrightInhibit (const ClassDef *littype);
+
 	void PrepareConstants (int halfheight, fixed planeheight);
 
 	void NextY (int y, int lx, int rx, int bot);
@@ -447,7 +449,7 @@ void ScaleSprite(AActor *actor, int xcenter, const Frame *frame, unsigned height
 		Shading::LightForIntercept (actor->absx, actor->absy, littype));
 	const BYTE *cmapstart = Shading::GetCMapStart (littype);
 	if(((actor->flags & FL_BRIGHT) || frame->fullbright) &&
-	   !(littype && littype->FullBrightInhibit))
+	   !Shading::GetFullBrightInhibit(littype))
 	{
 		colormap = cmapstart;
 	}
@@ -531,7 +533,7 @@ void Scale3DSpriter(AActor *actor, int x1, int x2, FTexture *tex, bool flip, con
 		Shading::LightForIntercept (actor->x, actor->y, littype));
 	const BYTE *cmapstart = Shading::GetCMapStart (littype);
 	if(((actor->flags & FL_BRIGHT) || frame->fullbright) &&
-	   !(littype && littype->FullBrightInhibit))
+	   !Shading::GetFullBrightInhibit(littype))
 	{
 		colormap = cmapstart;
 	}
@@ -700,7 +702,7 @@ void R_DrawPlayerSprite(AActor *actor, const Frame *frame, fixed offsetX, fixed 
 	const int shade = LIGHT2SHADE(gLevelLight + r_extralight +
 		Shading::LightForIntercept (viewx, viewy, littype));
 	const BYTE *cmapstart = Shading::GetCMapStart (littype);
-	if(frame->fullbright && !(littype && littype->FullBrightInhibit))
+	if(frame->fullbright && !Shading::GetFullBrightInhibit(littype))
 		colormap = cmapstart;
 	else if(frame->zonebright)
 	{
