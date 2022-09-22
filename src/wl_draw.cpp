@@ -1419,7 +1419,7 @@ void R_RenderView()
 
 	if (levelInfo->Atmos[1])
 		DrawRain(vbuf, vbufPitch, 0, 0);
-	if (levelInfo->Atmos[2])
+	if (levelInfo->SnowEnabled())
 		DrawSnow(vbuf, vbufPitch, 0, 0);
 
 	DrawPlayerWeapon ();    // draw player's hands

@@ -203,7 +203,7 @@ public:
 	TArray<FTextureID>	ParallaxSky;
 	int             NumParallaxTiles;
 	bool			ParallaxDecals;
-	int             Atmos[4];
+	int             Atmos[5];
 	FString			Intermission;
 
 	bool			DeathCam;
@@ -230,7 +230,7 @@ public:
 
 	void ClearAtmos()
 	{
-		Atmos[0] = Atmos[1] = Atmos[2] = Atmos[3] = 0;
+		Atmos[0] = Atmos[1] = Atmos[2] = Atmos[3] = Atmos[4] = 0;
 	}
 
 	// Returns true when any star sky is enabled such as Star sky and HQ Star
@@ -245,6 +245,13 @@ public:
 	bool SkyEnabled() const
 	{
 		return ParallaxSky.Size() > 0 || StarSkyEnabled();
+	}
+
+	// Returns true when any snow is enabled such as regular Snow and HQ Snow.
+	// Returns false otherwise
+	bool SnowEnabled() const
+	{
+		return Atmos[2] || Atmos[4];
 	}
 
 	static LevelInfo &Find(const char* level);

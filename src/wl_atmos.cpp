@@ -12,11 +12,15 @@
 #include "v_video.h"
 #include "m_random.h"
 #include "lw_vec.h"
+#include "c_console.h"
 
 #define RAINSCALING
 
 #define mapheight (map->GetHeader().height)
 #define mapwidth (map->GetHeader().width)
+
+CVAR (Bool, at_hqsnow, false, CVAR_ARCHIVE)
+CVAR (Bool, at_notilecheck, false, CVAR_ARCHIVE)
 
 static constexpr auto MINDIST = 0x5800l;
 
@@ -522,6 +526,19 @@ void DrawSnow(byte *vbuf, uint32_t vbufPitch, byte *zbuf, uint32_t zbufPitch)
     int hvwidth = viewwidth >> 1;
     point3d_t wavept;
 
+    const bool hqsnow = (at_hqsnow || (levelInfo->Atmos[4] != 0));
+
+    FTexture* picture = nullptr;
+    if(hqsnow)
+    {
+        FTextureID picnum = TexMan.CheckForTexture("SNOWBALL", FTexture::TEX_Any);
+        if (!picnum.isValid())
+        {
+            return;
+        }
+        picture = TexMan(picnum);
+    }
+
     static uint32_t windtics = 2000;
     static uint32_t maxwindtics = 2000;
     static int32_t windangle = 0;
@@ -644,22 +661,58 @@ void DrawSnow(byte *vbuf, uint32_t vbufPitch, byte *zbuf, uint32_t zbufPitch)
         {
             // Is there a ceiling tile?
             const MapSpot spot = map->GetSpot(floorx, floory, 0);
-            if(spot->sector != nullptr &&
+            if(!at_notilecheck && spot->sector != nullptr &&
                     spot->sector->texture[MapSector::Ceiling].isValid())
             {
                 continue;
             }
 
-            if(shade < 10)
+            if(!hqsnow)
             {
-                vbuf[yy * vbufPitch + xx] = shade+17;
-                vbuf[yy * vbufPitch + xx - 1] = shade+16;
-                vbuf[(yy - 1) * vbufPitch + xx] = shade+16;
-                vbuf[(yy - 1) * vbufPitch + xx - 1] = shade+15;
+                if(shade < 10)
+                {
+                    vbuf[yy * vbufPitch + xx] = shade+17;
+                    vbuf[yy * vbufPitch + xx - 1] = shade+16;
+                    vbuf[(yy - 1) * vbufPitch + xx] = shade+16;
+                    vbuf[(yy - 1) * vbufPitch + xx - 1] = shade+15;
+                }
+                else
+                {
+                    vbuf[yy * vbufPitch + xx] = shade+15;
+                }
             }
-            else
+
+            if (hqsnow && xx >= 0 && xx < (int32_t)screenWidth && yy >= 0 &&
+                yy < (int32_t)screenHeight && picture)
             {
-                vbuf[yy * vbufPitch + xx] = shade+15;
+                double x = xx, y = yy;
+
+                screen->Lock(false);
+                auto compute_scale = [&](auto a, auto b) {
+                    double t = shade;
+                    t = t/10;
+                    t = std::min(t, 1.0);
+                    return a * (1-t) + b * t;
+                };
+
+                auto scale = compute_scale(0.7, 0.1);
+                double stx = 0;
+                double sty = 0;
+                double stw = std::max(4 * scale, 1.0);
+                double sth = 0;
+                screen->VirtualToRealCoords(stx, sty, stw, sth, 320, 200, true, true);
+                double wd = stw;
+                double hd = stw;
+
+                const DWORD alpha = shade*175/12;
+                auto shade = MAKEARGB(alpha, 0, 0, 0);
+                screen->DrawTexture(picture, x, y, DTA_ColorOverlay, shade,
+                                    DTA_DestWidthF, wd,
+                                    DTA_DestHeightF, hd, DTA_ClipLeft, viewscreenx,
+                                    DTA_ClipRight, viewscreenx + viewwidth, DTA_ClipTop,
+                                    viewscreeny, DTA_ClipBottom, viewscreeny + viewheight,
+                                    TAG_DONE);
+                screen->Unlock();
             }
         }
     }

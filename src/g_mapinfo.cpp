@@ -607,6 +607,8 @@ protected:
 			ParseIntAssignment(mapInfo.Atmos[2]);
 		else if(key.CompareNoCase("AtmosHqStarSky") == 0)
 			ParseIntAssignment(mapInfo.Atmos[3]);
+		else if(key.CompareNoCase("AtmosHqSnow") == 0)
+			ParseIntAssignment(mapInfo.Atmos[4]);
 		else if(key.CompareNoCase("Intermission") == 0)
 			ParseStringAssignment(mapInfo.Intermission);
 		else
