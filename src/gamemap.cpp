@@ -564,6 +564,8 @@ void GameMap::SpawnThings() const
 			if(thing.holo)
 				actor->flags &= ~(FL_SOLID);
 			actor->spawnThingNum = std::make_pair(true, i);
+			if(thing.numdirs == 4)
+				actor->TwoSidedRotate = std::make_pair(true, thing.dir4ind);
 
 			// you can score 100% kills/treasure again in this level if a new
 			// actor is spawned that counts towards the statistic

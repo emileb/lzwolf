@@ -117,6 +117,7 @@ public:
 		unsigned char	angles;
 		unsigned char	minskill;
 		int				minangle;
+		int				numdirs;
 	};
 
 	struct ThingSpecialXlat
@@ -347,6 +348,7 @@ public:
 			thing.angle = 0;
 		if(type.minangle != 0)
 			thing.angle = (thing.angle + type.minangle)%360;
+		thing.numdirs = (type.numdirs == 4 ? 4 : 1);
 
 		thing.patrol = type.flags&Xlat::TF_PATHING;
 		thing.skill[0] = thing.skill[1] = type.minskill <= 1;
@@ -646,6 +648,7 @@ protected:
 				sc.MustGetToken(TK_IntConst);
 				thing.minskill = sc->number;
 				thing.minangle = 0;
+				thing.numdirs = 0;
 				if(sc.CheckToken(','))
 				{
 					sc.MustGetToken(TK_Identifier);
@@ -654,6 +657,12 @@ protected:
 						sc.MustGetToken('=');
 						sc.MustGetToken(TK_IntConst);
 						thing.minangle = sc->number;
+					}
+					else if(sc->str.CompareNoCase("numdirs") == 0)
+					{
+						sc.MustGetToken('=');
+						sc.MustGetToken(TK_IntConst);
+						thing.numdirs = sc->number;
 					}
 				}
 				sc.MustGetToken('}');
@@ -1406,6 +1415,7 @@ void GameMap::ReadPlanesData()
 					Trigger trigger;
 					uint32_t flags = 0;
 					uint32_t tsFlags = 0;
+					int dir = 0;
 
 					if((tsFlags = xlat.TranslateThing(thing, trigger, flags, oldplane[i])) == 0)
 						printf("Unknown old type %d @ (%d,%d)\n", oldplane[i], i%header.width, i/header.width);
@@ -1427,10 +1437,25 @@ void GameMap::ReadPlanesData()
 						{
 							teleporterSpots[oldplane[i]].Push(&mapPlane.map[i]);
 						}
-						if(tsFlags & Xlat::TSF_ISTHING)
+						for(dir = 0; (tsFlags & Xlat::TSF_ISTHING) &&
+								(dir < thing.numdirs); ++dir)
 						{
 							thing.x = ((i%header.width)<<FRACBITS)+(FRACUNIT/2);
 							thing.y = ((i/header.width)<<FRACBITS)+(FRACUNIT/2);
+							using TDirOffset = std::pair<fixed, fixed>;
+							static std::array<TDirOffset, 4> offsets = {
+								TDirOffset{FRACUNIT/2,     0},
+								TDirOffset{0,              -FRACUNIT/2},
+								TDirOffset{-FRACUNIT/2,    0},
+								TDirOffset{0,              FRACUNIT/2},
+							};
+							if(thing.numdirs == 4)
+							{
+								thing.x += offsets[dir].first;
+								thing.y += offsets[dir].second;
+								thing.angle = dir*90;
+								thing.dir4ind = dir;
+							}
 							if((FeatureFlags & Xlat::FF_ZHEIGHTS) && (infoplane[i]&0xFF00) == 0xB000)
 							{
 								// ROTT uses the signed lower byte of info plane to assign height in 1/16 tile (4 unit) increments

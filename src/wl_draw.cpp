@@ -30,6 +30,7 @@
 #include "thingdef/thingdef.h"
 #include "c_console.h"
 #include "wl_menu.h"
+#include "lw_vec.h"
 
 /*
 =============================================================================
@@ -719,6 +720,18 @@ unsigned int CalcRotate (AActor *ob)
 	viewangle = players[ConsolePlayer].camera->angle + (centerx - ob->viewx)/8;
 
 	angle = viewangle - ob->angle;
+
+	if(ob->TwoSidedRotate.first)
+	{
+		const auto x = players[ConsolePlayer].camera->x;
+		const auto y = players[ConsolePlayer].camera->y;
+		const auto v = lwlib::vec2f(FIXED2FLOAT(x - ob->x),
+				FIXED2FLOAT(y - ob->y));
+		const auto obj_n = lwlib::vec2f(FIXED2FLOAT(finecosine[ob->angle>>ANGLETOFINESHIFT]),
+				-FIXED2FLOAT(finesine[ob->angle>>ANGLETOFINESHIFT]));
+		const auto prod = vec_dot(v, obj_n);
+		return (ob->TwoSidedRotate.second * 2) + (prod > 0 ? 0 : 1);
+	}
 
 	angle+= ANGLE_180 + ANGLE_45/2;
 

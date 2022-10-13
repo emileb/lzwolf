@@ -396,6 +396,7 @@ class AActor : public Thinker,
 
 		int		UseTriggerFilterKey;
 		bool	FlipSprite;
+		std::pair<bool,int>	TwoSidedRotate;
 
 		TObjPtr<AInventory>	inventory;
 

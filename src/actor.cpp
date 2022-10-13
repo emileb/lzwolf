@@ -658,6 +658,7 @@ void AActor::Serialize(FArchive &arc)
 
 	arc << UseTriggerFilterKey;
 	arc << FlipSprite;
+	arc << TwoSidedRotate;
 
 	if(arc.IsLoading() && !hasActorRef)
 		actors.Remove(this);
