@@ -172,6 +172,7 @@ class GameMap
 			enum Flat { Floor, Ceiling };
 			FTextureID	texture[2];
 			FTextureID	overhead;
+			FName		footSplash;
 		};
 		struct Zone
 		{

@@ -165,6 +165,15 @@ extern class player_t
 		using TWeaponSlotStates = std::array<WeaponSlotState, 10>;
 		TWeaponSlotStates weaponSlotStates;
 
+		struct LastBob
+		{
+			int		dir = 0;
+			bool	step = false;
+			fixed	value = 0;
+			bool    inhibitstep = false;
+		};
+		LastBob		lastbob;
+
 		WeaponSlotState &GetWeaponSlotState (unsigned int slot)
 		{
 			return weaponSlotStates[slot];

@@ -695,6 +695,13 @@ HANDLE_PROPERTY(movebob)
 	cls->Meta.SetMetaFixed(APMETA_MoveBob, strength);
 }
 
+HANDLE_PROPERTY(movebobspeed)
+{
+	FIXED_PARAM(speed, 0);
+
+	cls->Meta.SetMetaFixed(APMETA_MoveBobSpeed, speed);
+}
+
 HANDLE_PROPERTY(noxdeath)
 {
 	INT_PARAM(noxdeath, 0);
@@ -1099,6 +1106,7 @@ extern const PropDef properties[] =
 	DEFINE_PROP(missilefrequency, Actor, F),
 	DEFINE_PROP(MONSTER, Actor,),
 	DEFINE_PROP_PREFIX(movebob, PlayerPawn, Player, F),
+	DEFINE_PROP_PREFIX(movebobspeed, PlayerPawn, Player, F),
 	DEFINE_PROP(noxdeath, Damage, I),
 	DEFINE_PROP(obituary, Actor, T),
 	DEFINE_PROP(overheadicon, Actor, S),

@@ -581,6 +581,11 @@ class UWMFParser : public TextMapParser
 				sc.MustGetToken(TK_StringConst);
 				sector.texture[MapSector::Ceiling] = TexMan.GetTexture(sc->str, FTexture::TEX_Flat);
 			}
+			else CheckKey("footsplash")
+			{
+				sc.MustGetToken(TK_StringConst);
+				sector.footSplash = sc->str;
+			}
 
 			EndParseBlock
 			gm->sectorPalette.Push(sector);

@@ -1358,9 +1358,42 @@ void WallRefresh (void)
 	viewshift = FixedMul(focallengthy, finetangent[(ANGLE_180+players[ConsolePlayer].camera->pitch)>>ANGLETOFINESHIFT]);
 
 	
-	angle_t bobangle = ((gamestate.TimeCount<<13)/(20*TICRATE/35)) & FINEMASK;
+	fixed bobspeed = players[ConsolePlayer].mo->GetClass()->Meta.GetMetaFixed(APMETA_MoveBobSpeed);
+	if (bobspeed == 0)
+		bobspeed = FRACUNIT;
+	angle_t bobangle = ((gamestate.TimeCount<<13)/((20*FRACUNIT/bobspeed)*TICRATE/35)) & FINEMASK;
 	const fixed playerMovebob = players[ConsolePlayer].mo->GetClass()->Meta.GetMetaFixed(APMETA_MoveBob);
 	fixed curbob = gamestate.victoryflag ? 0 : FixedMul(FixedMul(players[ConsolePlayer].bob, playerMovebob)>>1, finesine[bobangle]);
+	//fprintf(stderr, "sinebobangle=%.2f,bob=%.2f,playermovebob=%.2f,curbob=%.2f\n", FIXED2FLOAT(finesine[bobangle]),FIXED2FLOAT(players[ConsolePlayer].bob), FIXED2FLOAT(playerMovebob), FIXED2FLOAT(curbob));
+
+	// simulating foot step or splash effect
+	fixed nextbob = gamestate.victoryflag ? 0 :
+		FixedMul(players[ConsolePlayer].bob>>1, finesine[bobangle]);
+	auto& lastbob = players[ConsolePlayer].lastbob;
+	//fprintf(stderr, "nextbob=%.2f, bobangle=%d\n", FIXED2FLOAT(nextbob), (int)bobangle);
+	lastbob.step = false;
+	if (lastbob.dir > 0 && nextbob < lastbob.value && nextbob > TILEGLOBAL &&
+			!lastbob.inhibitstep)
+	{
+		//fprintf(stderr, "step\n");
+		lastbob.step = true;
+		lastbob.inhibitstep = true; // inhibit until bob goes positive again
+	}
+	if (nextbob - lastbob.value > 0)
+	{
+		lastbob.dir = 1;
+	}
+	else if (nextbob - lastbob.value < 0)
+	{
+		lastbob.dir = -1;
+	}
+	else
+		lastbob.dir = 0;
+	lastbob.value = nextbob;
+	if (nextbob < 0)
+	{
+		lastbob.inhibitstep = false;
+	}
 
 	fixed height = players[ConsolePlayer].mo->viewheight;
 	viewz = curbob - height;

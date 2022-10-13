@@ -298,6 +298,20 @@ public:
 		return flatTable[index][ceiling];
 	}
 
+	FName TranslateFlatToFootSplash(unsigned int index, FName def)
+	{
+		if (def.IsValidName() && def != NAME_None)
+		{
+			if(flatFootSplashTable[index].IsValidName() && flatFootSplashTable[index] != NAME_None)
+			{
+				return flatFootSplashTable[index];
+			}
+			return def;
+		}
+
+		return flatFootSplashTable[index];
+	}
+
 	bool TranslateTileTrigger(unsigned short tile, MapTrigger &trigger)
 	{
 		MapTrigger *item = tileTriggers.CheckKey(tile);
@@ -404,6 +418,18 @@ protected:
 		while(!sc.CheckToken('}'))
 		{
 			sc.MustGetToken(TK_Identifier);
+			if(sc->str.CompareNoCase("footsplash") == 0)
+			{
+				const TMap<unsigned int, FString> table = LoadStringTable(sc);
+				TMap<unsigned int, FString>::ConstPair *pair;
+				for(TMap<unsigned int, FString>::ConstIterator iter(table);iter.NextPair(pair);)
+				{
+					if(pair->Key > 255)
+						continue;
+					flatFootSplashTable[pair->Key] = pair->Value;
+				}
+				continue;
+			}
 			bool ceiling = sc->str.CompareNoCase("ceiling") == 0;
 			if(!ceiling && sc->str.CompareNoCase("floor") != 0)
 				sc.ScriptMessage(Scanner::ERROR, "Unknown flat section '%s'.", sc->str.GetChars());
@@ -709,6 +735,7 @@ private:
 		{
 			flatTable[i][0].SetInvalid();
 			flatTable[i][1].SetInvalid();
+			flatFootSplashTable[i] = FName();
 		}
 		thingTable.Clear();
 		thingSpecialTable.Clear();
@@ -730,6 +757,7 @@ private:
 	TMap<WORD, MapZone> zonePalette;
 	TMap<unsigned, FString> musicTable;
 	FTextureID flatTable[256][2]; // Floor/ceiling textures
+	FName flatFootSplashTable[256];
 	EFeatureFlags FeatureFlags;
 };
 static Xlat xlat;
@@ -1516,6 +1544,7 @@ void GameMap::ReadPlanesData()
 
 					FTextureID ceilid = lvlHasParallax ? FNullTextureID() : defaultCeiling;
 					sect.texture[Sector::Ceiling] = xlat.TranslateFlat(pair->Key>>8, Sector::Ceiling, ceilid);
+					sect.footSplash = xlat.TranslateFlatToFootSplash(pair->Key&0xFF, levelInfo->FootSplash);
 				}
 
 				// Now link the sector data to map points!

@@ -75,3 +75,14 @@ actor TestFadeCeilingLight
 			stop
 	}
 }
+
+actor TestFootSplash
+{
+	states
+	{
+		Spawn:
+			TNT1 A 1 A_PlaySound("world/footstep", CHAN_AUTO, 0.7, false, ATTN_NONE)
+			TNT1 A 100
+			stop
+	}
+}

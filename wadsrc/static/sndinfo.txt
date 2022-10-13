@@ -7,6 +7,7 @@ doors/metal_close		{ DSMDRCLS ALDRCLS PCDRCLS }
 world/hitwall			{ DSHITWAL ALHITWAL PCHITWAL }
 world/pushwall			{ DSPSHWAL ALPSHWAL PCPSHWAL }
 world/pushwall_heavy	{ DSLPHWAL ALPSHWAL PCPSHWAL }
+world/footstep			{ DSFTSTEP ALFTSTEP PCFTSTEP }
 
 switches/normbutn		{ DSSWITCH ALSWITCH PCSWITCH }
 $alias switches/exitbutn switches/normbutn

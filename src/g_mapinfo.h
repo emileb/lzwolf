@@ -227,6 +227,7 @@ public:
 		int				Args[5];
 	};
 	TArray<SpecialAction>	SpecialActions;
+	FName					FootSplash;
 
 	void ClearAtmos()
 	{

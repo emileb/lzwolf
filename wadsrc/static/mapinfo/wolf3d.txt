@@ -57,6 +57,7 @@ map "MAP01"
 	//atmossnow = 1
 	//atmoshqsnow = 1
 	//atmoshqstarsky = 1
+	//footsplash = "TestFootSplash"
 }
 
 map "MAP02"

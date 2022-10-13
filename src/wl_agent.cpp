@@ -304,6 +304,29 @@ void ControlMovement (APlayerPawn *ob)
 	{
 		if(ob->SeeState && ob->InStateSequence(ob->SpawnState))
 			ob->SetState(ob->SeeState);
+
+		const auto& lastbob = ob->player->lastbob;
+		if (lastbob.step && map->IsValidTileCoordinate(ob->tilex, ob->tiley, 0))
+		{
+			auto get_footsplash_cls = [](auto name) {
+				const ClassDef *cls = nullptr;
+				if (name != NAME_None && name.IsValidName())
+				{
+					cls = ClassDef::FindClass(name);
+				}
+				return cls;
+			};
+
+			const MapSpot spot = map->GetSpot(ob->tilex, ob->tiley, 0);
+			const ClassDef *cls = nullptr;
+			if ((spot->sector != nullptr && (cls =
+							get_footsplash_cls(spot->sector->footSplash))) ||
+				(cls = get_footsplash_cls(levelInfo->FootSplash)))
+			{
+				auto splashobj = AActor::Spawn(cls, ob->x, ob->y, 0,
+						SPAWN_AllowReplacement);
+			}
+		}
 	}
 	else
 	{
@@ -1217,6 +1240,11 @@ void player_t::Serialize(FArchive &arc)
 		<< heightanim.ticcount
 		<< heightanim.startpos
 		<< heightanim.endpos;
+
+	arc << lastbob.dir
+		<< lastbob.step
+		<< lastbob.value
+		<< lastbob.inhibitstep;
 
 	if(GameSave::SaveProdVersion >= 0x001002FF && GameSave::SaveVersion > 1374729160)
 		arc << FOV << DesiredFOV;

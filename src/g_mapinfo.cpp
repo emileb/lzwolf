@@ -611,6 +611,13 @@ protected:
 			ParseIntAssignment(mapInfo.Atmos[4]);
 		else if(key.CompareNoCase("Intermission") == 0)
 			ParseStringAssignment(mapInfo.Intermission);
+		else if(key.CompareNoCase("FootSplash") == 0)
+		{
+			FString fstr;
+			ParseStringAssignment(fstr);
+			const char* str = fstr.GetChars();
+			mapInfo.FootSplash = FName(str);
+		}
 		else
 			return false;
 		return true;
