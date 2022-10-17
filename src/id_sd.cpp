@@ -85,7 +85,7 @@ static SDL_AudioCVT AudioCVTStereo;
 //      Internal variables
 static  bool					SD_Started;
 static  bool					nextsoundpos;
-FString                 SoundPlaying;
+SoundIndex						SoundPlaying;
 static  word                    SoundPriority;
 static  word                    DigiPriority;
 static  int                     LeftPosition;
@@ -215,7 +215,7 @@ static Uint64 Mix_GetMusicPCMPosition() { return 0; }
 
 static void SDL_SoundFinished(void)
 {
-	SoundPlaying = FString();
+	SoundPlaying = SoundIndex();
 	SoundPriority = 0;
 }
 
@@ -685,7 +685,7 @@ void SD_SetChannelVolume(int channel, double volume)
 
 void SD_ChannelFinished(int channel)
 {
-	SoundPlaying = FString();
+	SoundPlaying = SoundIndex();
 	channelSoundPos[channel].valid = 0;
 	LoopedAudio::finished (channel);
 }
@@ -871,7 +871,7 @@ SDL_StartDevice(void)
 			SDL_StartAL();
 			break;
 	}
-	SoundPlaying = FString();
+	SoundPlaying = SoundIndex();
 	SoundPriority = 0;
 }
 
@@ -1296,12 +1296,13 @@ int SD_PlaySound(const char* sound, SoundChannel chan)
 	ispos = nextsoundpos;
 	nextsoundpos = false;
 
-	const SoundData &sindex = SoundInfo[sound];
+	const SoundIndex sindex = SoundInfo.FindSound(sound);
+	const SoundData &sdata = SoundInfo[sindex];
 
-	if ((SoundMode != sdm_Off) && sindex.IsNull())
+	if ((SoundMode != sdm_Off) && sdata.IsNull())
 		return -1;
 
-	if ((DigiMode != sds_Off) && sindex.HasType(SoundData::DIGITAL))
+	if ((DigiMode != sds_Off) && sdata.HasType(SoundData::DIGITAL))
 	{
 		if ((DigiMode == sds_PC) && (SoundMode == sdm_PC))
 		{
@@ -1311,7 +1312,7 @@ int SD_PlaySound(const char* sound, SoundChannel chan)
 
 			SDL_PCStopSound();
 
-			SD_PlayDigitized(sindex,lp,rp);
+			SD_PlayDigitized(sdata,lp,rp);
 			SoundPositioned = ispos;
 			SoundPriority = s->priority;
 #else
@@ -1325,10 +1326,10 @@ int SD_PlaySound(const char* sound, SoundChannel chan)
 				return -1;
 #endif
 
-			int channel = SD_PlayDigitized(sindex, lp, rp, chan, looping, dist, volume);
+			int channel = SD_PlayDigitized(sdata, lp, rp, chan, looping, dist, volume);
 			SoundPositioned = ispos;
-			DigiPriority = sindex.GetPriority();
-			SoundPlaying = sound;
+			DigiPriority = sdata.GetPriority();
+			SoundPlaying = sindex;
 			return channel;
 		}
 
@@ -1339,7 +1340,7 @@ int SD_PlaySound(const char* sound, SoundChannel chan)
 	if (SoundMode == sdm_Off)
 		return -1;
 
-	if (sindex.GetPriority() < SoundPriority)
+	if (sdata.GetPriority() < SoundPriority)
 		return -1;
 
 #ifndef ECWOLF_MIXER
@@ -1356,16 +1357,16 @@ int SD_PlaySound(const char* sound, SoundChannel chan)
 			didPlaySound = true;
 			break;
 		case sdm_PC:
-			if(sindex.HasType(SoundData::PCSPEAKER))
+			if(sdata.HasType(SoundData::PCSPEAKER))
 			{
-				SDL_PCPlaySound((PCSound *)sindex.GetSpeakerData());
+				SDL_PCPlaySound((PCSound *)sdata.GetSpeakerData());
 				didPlaySound = true;
 			}
 			break;
 		case sdm_AdLib:
-			if(sindex.HasType(SoundData::ADLIB))
+			if(sdata.HasType(SoundData::ADLIB))
 			{
-				SDL_ALPlaySound((AdLibSound *)sindex.GetAdLibData());
+				SDL_ALPlaySound((AdLibSound *)sdata.GetAdLibData());
 				didPlaySound = true;
 			}
 			break;
@@ -1373,8 +1374,8 @@ int SD_PlaySound(const char* sound, SoundChannel chan)
 
 	if (didPlaySound)
 	{
-		SoundPriority = sindex.GetPriority();
-		SoundPlaying = sound;
+		SoundPriority = sdata.GetPriority();
+		SoundPlaying = sindex;
 	}
 
 	return -1;
@@ -1403,7 +1404,7 @@ bool SD_SoundPlaying(void)
 	}
 
 	if (result)
-		return SoundPlaying.IsNotEmpty();
+		return !SoundPlaying.IsNull();
 	else
 		return false;
 }
