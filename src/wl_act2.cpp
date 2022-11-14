@@ -281,7 +281,7 @@ void T_Projectile (AActor *self)
 				check != self
 				// Pass through allies if fired by player
 				&& !(playermissile && check->player)
-				&& should_hit_monster(check)
+				&& ((check->flags & FL_ISMONSTER) ? should_hit_monster(check) : true)
 				&& ((check->flags & (FL_SHOOTABLE|FL_SOLID))
 				&& lastHit != check))
 			{
