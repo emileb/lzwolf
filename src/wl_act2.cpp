@@ -263,7 +263,7 @@ void T_Projectile (AActor *self)
 				return true;
 			if(check == self->target)
 				return false;
-			return (self->target->GetEnemyFactionList() == NULL) ?
+			return (!self->target || self->target->GetEnemyFactionList() == NULL) ?
 				// Non-player missile cannot hit monster without
 				// FL_PROJHITENEMY - when faction list is empty!
 				(self->extraflags & FL_PROJHITENEMY) != 0 : 
