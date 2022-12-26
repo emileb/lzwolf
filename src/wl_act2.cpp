@@ -257,20 +257,6 @@ void T_Projectile (AActor *self)
 		}
 
 		const bool playermissile = self->target && self->target->player;
-		
-		auto should_hit_monster = [self, playermissile](auto check) {
-			if(playermissile)
-				return true;
-			if(check == self->target)
-				return false;
-			return (self->target->GetEnemyFactionList() == NULL) ?
-				// Non-player missile cannot hit monster without
-				// FL_PROJHITENEMY - when faction list is empty!
-				(self->extraflags & FL_PROJHITENEMY) != 0 : 
-				// When faction list is non-empty, check the shooter sees
-				// monster as an enemy.
-				CheckIsEnemyByFaction(self->target, check);
-		};
 
 		const auto max_r = framedata.max_radius + self->radius;
 		for(auto it = framedata.xactors.lower_bound(self->x - max_r);
@@ -281,7 +267,16 @@ void T_Projectile (AActor *self)
 				check != self
 				// Pass through allies if fired by player
 				&& !(playermissile && check->player)
-				&& should_hit_monster(check)
+				&& (
+					(check->flags & FL_ISMONSTER)
+					// Non-player missile cannot hit monster without
+					// FL_PROJHITENEMY
+					? (playermissile ||
+						(
+						 (self->extraflags & FL_PROJHITENEMY) != 0 &&
+						 self->target != check
+						))
+					: true)
 				&& ((check->flags & (FL_SHOOTABLE|FL_SOLID))
 				&& lastHit != check))
 			{
@@ -711,8 +706,7 @@ ACTION_FUNCTION(A_Chase)
 				if (iter != self &&
 					(iter->player || (iter->flags & FL_SHOOTABLE)) &&
 					(!mincheck || dist < mindist) &&
-					CheckIsEnemyByFaction(self, iter) &&
-					(staletarget || iter->player || CheckLine(self, iter)))
+					CheckIsEnemyByFaction(self, iter))
 				{
 					mincheck = iter;
 					mindist = dist;
