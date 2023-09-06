@@ -693,11 +693,6 @@ SDLFB::SDLFB (int width, int height, bool fullscreen)
 
 	ResetSDLRenderer ();
 
-#ifdef __ANDROID__
-	extern void PostSDLInit(SDL_Window *);
-	PostSDLInit(Screen);
-#endif
-
 	for (i = 0; i < 256; i++)
 	{
 		GammaTable[0][i] = GammaTable[1][i] = GammaTable[2][i] = i;
@@ -869,12 +864,6 @@ void SDLFB::Update ()
 		//SDLFlipCycles.Clock();
 		SDL_RenderClear(Renderer);
 		SDL_RenderCopy(Renderer, Texture, NULL, NULL);
-
-#ifdef __ANDROID__
-		// Hack control overlay in
-		extern void frameControls();
-		frameControls();
-#endif
 
 		SDL_RenderPresent(Renderer);
 		//SDLFlipCycles.Unclock();
@@ -1052,9 +1041,16 @@ void SDLFB::SetFullscreen (bool fullscreen)
 	ResetSDLRenderer ();
 #endif
 }
+#ifdef __ANDROID__
+extern bool maintainAspect;
+#endif
 
 bool SDLFB::IsFullscreen ()
 {
+#ifdef __ANDROID__
+	return !maintainAspect;
+#endif
+
 #if SDL_VERSION_ATLEAST(2,0,0)
 	return (SDL_GetWindowFlags (Screen) & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
 #else
@@ -1075,8 +1071,12 @@ void SDLFB::ResetSDLRenderer ()
 	UsingRenderer = !vid_forcesurface;
 	if (UsingRenderer)
 	{
+#ifdef __ANDROID__
+		Renderer = SDL_CreateRenderer (Screen, -1, SDL_RENDERER_ACCELERATED);
+#else
 		Renderer = SDL_CreateRenderer (Screen, -1,SDL_RENDERER_ACCELERATED|SDL_RENDERER_TARGETTEXTURE|
 										(vid_vsync ? SDL_RENDERER_PRESENTVSYNC : 0));
+#endif
 		if (!Renderer)
 			return;
 
@@ -1124,9 +1124,17 @@ void SDLFB::ResetSDLRenderer ()
 	{
 		int w, h;
 		SDL_GetWindowSize (Screen, &w, &h);
+#ifndef __ANDROID__		
 		ScaleWithAspect (w, h, Width, Height);
+#endif
 		SDL_RenderSetLogicalSize (Renderer, w, h);
 	}
+#ifdef __ANDROID__
+    else
+    {
+        SDL_RenderSetLogicalSize (Renderer, Width, Height);
+    }
+#endif
 #endif
 }
 

@@ -967,6 +967,10 @@ int CheckRatio (int width, int height, int *trueratio)
 
 #define IFARG(str) if(!strcmp(arg, (str)))
 
+#ifdef __ANDROID__
+char *argsExtraPath = 0;
+bool maintainAspect = false;
+#endif
 static const char* CheckParameters(int argc, char *argv[], TArray<FString> &files)
 {
 	const char* extension = NULL;
@@ -1186,6 +1190,19 @@ static const char* CheckParameters(int argc, char *argv[], TArray<FString> &file
 		{
 			GameSave::param_foreginsave = true;
 		}
+#ifdef __ANDROID__
+		else IFARG("--datapath")
+		{
+			if(++i < argc)
+			{
+				argsExtraPath = argv[i];
+			}
+		}
+		else  IFARG("--maintainaspect")
+		{
+			maintainAspect = true;
+		}
+#endif
 		else
 			files.Push(argv[i]);
 	}
@@ -1422,7 +1439,7 @@ bool GtkAvailable;
 
 #ifndef _WIN32
 #ifdef __ANDROID__
-int main_android(int argc, char *argv[])
+int main_mobile(int argc, char *argv[])
 #else
 int main(int argc, char *argv[])
 #endif

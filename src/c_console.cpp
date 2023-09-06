@@ -555,6 +555,8 @@ void AddToConsole (int printlevel, const char *text)
 {
 	conbuffer->AddText(printlevel, text, Logfile);
 }
+#include <android/log.h>
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO,"JNI", __VA_ARGS__))
 
 /* Adds a string to the console and also to the notify buffer */
 int PrintString (int printlevel, const char *outline)
@@ -563,6 +565,8 @@ int PrintString (int printlevel, const char *outline)
 	{
 		return 0;
 	}
+
+	LOGI("LZWolf: %s", outline);
 
 	if (printlevel != PRINT_LOG)
 	{

@@ -317,6 +317,9 @@ int IN_JoyAxes()
 
 bool IN_JoyPresent()
 {
+#ifdef __ANDROID__
+	return false;
+#endif
 	return Joystick != NULL
 #if SDL_VERSION_ATLEAST(2,0,0)
 		|| GameController != NULL
@@ -685,7 +688,8 @@ IN_Startup(void)
 		return;
 
 #ifdef __ANDROID__
-	ShadowingEnabled = !hasHardwareKeyboard();
+	//ShadowingEnabled = !hasHardwareKeyboard();
+	ShadowingEnabled = false;
 #endif
 
 #ifdef _WIN32
